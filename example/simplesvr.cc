@@ -27,7 +27,7 @@ string dump_headers(const Headers &headers) {
   return s;
 }
 
-string dump_multipart_files(const MultipartFiles &files) {
+string dump_multipart_files(const MultipartFormDataMap &files) {
   string s;
   char buf[BUFSIZ];
 
@@ -46,10 +46,7 @@ string dump_multipart_files(const MultipartFiles &files) {
     snprintf(buf, sizeof(buf), "content type: %s\n", file.content_type.c_str());
     s += buf;
 
-    snprintf(buf, sizeof(buf), "text offset: %lu\n", file.offset);
-    s += buf;
-
-    snprintf(buf, sizeof(buf), "text length: %lu\n", file.length);
+    snprintf(buf, sizeof(buf), "text length: %zu\n", file.content.size());
     s += buf;
 
     s += "----------------\n";
@@ -125,9 +122,12 @@ int main(int argc, const char **argv) {
   auto base_dir = "./";
   if (argc > 2) { base_dir = argv[2]; }
 
-  svr.set_base_dir(base_dir);
+  if (!svr.set_mount_point("/", base_dir)) {
+    cout << "The specified base directory doesn't exist...";
+    return 1;
+  }
 
-  cout << "The server started at port " << port << "...";
+  cout << "The server started at port " << port << "..." << endl;
 
   svr.listen("localhost", port);
 
