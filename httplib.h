@@ -3174,7 +3174,7 @@ process_server_socket_core(const std::atomic<socket_t> &svr_sock, socket_t sock,
   auto count = keep_alive_max_count;
   while (svr_sock != INVALID_SOCKET && count > 0 &&
          keep_alive(sock, keep_alive_timeout_sec)) {
-    auto close_connection = count == 1;
+    auto close_connection = true;
     auto connection_closed = false;
     ret = callback(close_connection, connection_closed);
     if (!ret || connection_closed) { break; }
@@ -6182,7 +6182,7 @@ inline bool Server::write_response_core(Stream &strm, bool close_connection,
   if (need_apply_ranges) { apply_ranges(req, res, content_type, boundary); }
 
   // Prepare additional headers
-  if (close_connection || req.get_header_value("Connection") == "close") {
+  if (close_connection || stricmp(req.get_header_value("Connection").c_str(),"close")==0) {
     res.set_header("Connection", "close");
   } else {
     std::stringstream ss;
@@ -6821,7 +6821,7 @@ Server::process_request(Stream &strm, bool close_connection,
     return write_response(strm, close_connection, req, res);
   }
 
-  if (req.get_header_value("Connection") == "close") {
+  if (stricmp(req.get_header_value("Connection").c_str(),"close")==0) {
     connection_closed = true;
   }
 
@@ -7236,7 +7236,7 @@ inline bool ClientImpl::handle_request(Stream &strm, Request &req,
 
   if (!ret) { return false; }
 
-  if (res.get_header_value("Connection") == "close" ||
+  if (stricmp(req.get_header_value("Connection").c_str(),"close")==0 ||
       (res.version == "HTTP/1.0" && res.reason != "Connection established")) {
     // TODO this requires a not-entirely-obvious chain of calls to be correct
     // for this to be safe.
