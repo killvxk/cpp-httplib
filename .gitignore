@@ -9,6 +9,8 @@ example/benchmark
 example/redirect
 example/sse*
 example/upload
+example/one_time_request
+example/server_and_client
 example/*.pem
 test/httplib.cc
 test/httplib.h
@@ -21,6 +23,8 @@ test/test.xcodeproj/*/xcuser*
 test/*.o
 test/*.pem
 test/*.srl
+work/
+benchmark/server*
 
 *.swp
 
@@ -34,6 +38,7 @@ Release
 *.db
 ipch
 *.dSYM
+*.pyc
 .*
 !/.gitattributes
 !/.travis.yml
